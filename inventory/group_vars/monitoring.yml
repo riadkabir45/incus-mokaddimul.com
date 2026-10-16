@@ -1,0 +1,36 @@
+config_user_name: monitoring
+config_user_shell: /usr/sbin/nologin
+
+archive_fetch_owner: root
+archive_fetch_group: root
+
+archive_fetch_artifacts:
+  - name: prometheus
+    url: https://github.com/prometheus/prometheus/releases/download/v3.15.0/prometheus-3.15.0.linux-amd64.tar.gz
+    archive: true
+    dest_dir: /opt/services/prometheus
+    extract_strip_components: 1
+    overwrite: false
+
+binary_services:
+  - name: prometheus
+    exec: /opt/services/prometheus/prometheus
+    args: "--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/var/lib/prometheus"
+    dirs:
+      - /etc/prometheus
+      - /var/lib/prometheus
+    config_files:
+      - src: prometheus.yml
+        dest: /etc/prometheus/prometheus.yml
+
+apt_service_repos:
+  - name: grafana
+    key_url: https://apt.grafana.com/gpg-full.key
+    uri: https://apt.grafana.com
+    suite: stable
+    components: main
+
+apt_services:
+  - name: grafana
+    package: grafana
+    service: grafana-server

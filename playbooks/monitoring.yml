@@ -1,0 +1,10 @@
+---
+- name: Deploy monitoring stack
+  hosts: monitoring
+  become: true
+  roles:
+    - base
+    - create_warden
+    - check_download
+    - binary_service
+    - apt_service

@@ -1,0 +1,53 @@
+---
+- name: Ensure gpg keyring dir exists
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Fetch GPG keys
+  ansible.builtin.get_url:
+    url: "{{ item.key_url }}"
+    dest: "/etc/apt/keyrings/{{ item.name }}.asc"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ apt_service_repos }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Add APT repo sources
+  ansible.builtin.deb822_repository:
+    name: "{{ item.name }}"
+    types: deb
+    uris: "{{ item.uri }}"
+    suites: "{{ item.suite | default('stable') }}"
+    components: "{{ item.components | default('main') }}"
+    architectures: amd64
+    signed_by: "/etc/apt/keyrings/{{ item.name }}.asc"
+    state: present
+  loop: "{{ apt_service_repos }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: apt_repo_change
+
+- name: Update apt cache if repos changed
+  ansible.builtin.apt:
+    update_cache: true
+  when: apt_repo_change.changed
+
+- name: Install apt packages
+  ansible.builtin.apt:
+    name: "{{ apt_services | map(attribute='package') | list }}"
+    state: present
+
+- name: Enable and start services
+  ansible.builtin.systemd:
+    name: "{{ item.service }}"
+    enabled: true
+    state: started
+  loop: "{{ apt_services }}"
+  loop_control:
+    label: "{{ item.name }}"
