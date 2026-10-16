@@ -1,0 +1,46 @@
+---
+- name: Download artifact
+  ansible.builtin.get_url:
+    url: "{{ item.url }}"
+    dest: "{{ archive_fetch_src_dir }}/{{ item.name }}{{ item.archive_ext | default('.tar.gz') if item.archive | default(false) else '' }}"
+    owner: "{{ archive_fetch_owner }}"
+    group: "{{ archive_fetch_group }}"
+    mode: "0644"
+    force: "{{ item.overwrite | default(false) }}"
+
+- name: Ensure destination directory exists
+  ansible.builtin.file:
+    path: "{{ item.dest_dir }}"
+    state: directory
+    owner: "{{ archive_fetch_owner }}"
+    group: "{{ archive_fetch_group }}"
+    mode: "0755"
+
+- name: Extract archive
+  ansible.builtin.unarchive:
+    src: "{{ archive_fetch_src_dir }}/{{ item.name }}{{ item.archive_ext | default('.tar.gz') }}"
+    dest: "{{ item.dest_dir }}/"
+    remote_src: true
+    owner: "{{ archive_fetch_owner }}"
+    group: "{{ archive_fetch_group }}"
+    include: "{{ item.extract_include | default(omit) }}"
+    extra_opts: >-
+      {{ ['--strip-components=' ~ item.extract_strip_components]
+         if item.extract_strip_components is defined else omit }}
+  when: item.archive | default(false)
+
+- name: Place raw binary
+  ansible.builtin.copy:
+    src: "{{ archive_fetch_src_dir }}/{{ item.name }}"
+    dest: "{{ item.dest_dir }}/{{ item.name }}"
+    owner: "{{ archive_fetch_owner }}"
+    group: "{{ archive_fetch_group }}"
+    mode: "0755"
+    remote_src: true
+  when: not (item.archive | default(false))
+
+- name: Remove cached archive if not keeping
+  ansible.builtin.file:
+    path: "{{ archive_fetch_src_dir }}/{{ item.name }}{{ item.archive_ext | default('.tar.gz') if item.archive | default(false) else '' }}"
+    state: absent
+  when: not archive_fetch_keep_cache

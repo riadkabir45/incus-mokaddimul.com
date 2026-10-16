@@ -1,0 +1,11 @@
+---
+- name: Create config user
+  ansible.builtin.user:
+    name: "{{ config_user_name }}"
+    comment: "{{ config_user_comment }}"
+    shell: "{{ config_user_shell }}"
+    groups: "{{ config_user_groups }}"
+    append: true
+    create_home: "{{ config_user_create_home }}"
+    home: "{{ config_user_home }}"
+    state: present

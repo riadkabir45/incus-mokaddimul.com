@@ -1,0 +1,38 @@
+---
+- name: Deploy config files for {{ item.name }}
+  ansible.builtin.copy:
+    src: "/opt/services/{{ item.name }}/{{ cf.src }}"
+    dest: "{{ cf.dest }}"
+    remote_src: true
+    owner: "{{ binary_service_user }}"
+    group: "{{ binary_service_group }}"
+    mode: "0644"
+    force: false
+  loop: "{{ item.config_files | default([]) }}"
+  loop_control:
+    loop_var: cf
+    label: "{{ cf.dest }}"
+  register: config_deploy
+
+- name: Deploy unit file for {{ item.name }}
+  ansible.builtin.template:
+    src: service.j2
+    dest: "/etc/systemd/system/{{ item.name }}.service"
+    owner: root
+    group: root
+    mode: "0644"
+  register: unit_deploy
+
+- name: Reload systemd if unit changed
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: unit_deploy.changed
+
+- name: Restart service if unit or config changed
+  ansible.builtin.systemd:
+    name: "{{ item.name }}"
+    state: restarted
+  when:
+    - unit_deploy.changed or (config_deploy.changed | default(false))
+    - ansible_facts.services[item.name + '.service'] is defined
+    - ansible_facts.services[item.name + '.service'].state == 'running'

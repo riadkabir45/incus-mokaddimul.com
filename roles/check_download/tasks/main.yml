@@ -1,0 +1,27 @@
+---
+- name: Ensure staging directory exists
+  ansible.builtin.file:
+    path: "{{ archive_fetch_src_dir }}"
+    state: directory
+    owner: "{{ archive_fetch_owner }}"
+    group: "{{ archive_fetch_group }}"
+    mode: "0755"
+
+- name: Check if artifact is already installed
+  ansible.builtin.stat:
+    path: "{{ item.dest_dir }}"
+  register: archive_fetch_installed
+  loop: "{{ archive_fetch_artifacts }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Fetch each artifact that needs attention
+  ansible.builtin.include_tasks: fetch.yml
+  loop: "{{ archive_fetch_artifacts }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: >
+    not (archive_fetch_installed.results
+         | selectattr('item.name', 'equalto', item.name)
+         | map(attribute='stat.exists') | first)
+    or (item.overwrite | default(false))

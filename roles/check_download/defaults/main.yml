@@ -1,0 +1,8 @@
+archive_fetch_src_dir: /opt/cache
+archive_fetch_keep_cache: true
+archive_fetch_cache_max_age: 86400
+
+archive_fetch_owner: "{{ ansible_user | default('root') }}"
+archive_fetch_group: "{{ ansible_user | default('root') }}"
+
+archive_fetch_artifacts: []

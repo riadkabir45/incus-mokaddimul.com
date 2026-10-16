@@ -1,0 +1,6 @@
+config_user_name: warden
+config_user_comment: "Service account for running daemons"
+config_user_shell: /usr/bin/bash
+config_user_groups: []
+config_user_create_home: true
+config_user_home: "/home/{{ config_user_name }}"

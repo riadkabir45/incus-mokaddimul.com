@@ -1,0 +1,4 @@
+binary_service_user: "{{ config_user_name }}"
+binary_service_group: "{{ config_user_name }}"
+
+binary_services: []

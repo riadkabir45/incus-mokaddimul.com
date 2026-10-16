@@ -1,0 +1,59 @@
+config_user_name: warden
+config_user_shell: /bin/bash
+
+archive_fetch_owner: root
+archive_fetch_group: root
+
+archive_fetch_artifacts:
+  - name: prowlarr
+    url: http://prowlarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64
+    archive: true
+    dest_dir: /opt/services/prowlarr
+    extract_strip_components: 1
+    overwrite: false
+
+  - name: radarr
+    url: http://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64
+    archive: true
+    dest_dir: /opt/services/radarr
+    extract_strip_components: 1
+    overwrite: false
+
+  - name: sonarr
+    url: https://services.sonarr.tv/v1/download/main/latest?version=4&os=linux&arch=x64
+    archive: true
+    dest_dir: /opt/services/sonarr
+    extract_strip_components: 1
+    overwrite: false
+
+  - name: whisparr
+    url: http://whisparr.servarr.com/v1/update/nightly/updatefile?os=linux&runtime=netcore&arch=x64
+    archive: true
+    dest_dir: /opt/services/whisparr
+    extract_strip_components: 1
+    overwrite: false
+
+binary_services:
+  - name: prowlarr
+    exec: /opt/services/prowlarr/Prowlarr
+    args: "-nobrowser -data=/var/lib/servarr/prowlarr"
+    dirs:
+      - /var/lib/servarr/prowlarr
+
+  - name: radarr
+    exec: /opt/services/radarr/Radarr
+    args: "-nobrowser -data=/var/lib/servarr/radarr"
+    dirs:
+      - /var/lib/servarr/radarr
+
+  - name: sonarr
+    exec: /opt/services/sonarr/Sonarr
+    args: "-nobrowser -data=/var/lib/servarr/sonarr"
+    dirs:
+      - /var/lib/servarr/sonarr
+
+  - name: whisparr
+    exec: /opt/services/whisparr/Whisparr
+    args: "-nobrowser -data=/var/lib/servarr/whisparr"
+    dirs:
+      - /var/lib/servarr/whisparr

@@ -1,0 +1,25 @@
+---
+- name: Ensure service directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ binary_service_user }}"
+    group: "{{ binary_service_group }}"
+    mode: "0755"
+  loop: "{{ binary_services | map(attribute='dirs', default=[]) | flatten | unique | list }}"
+
+- name: Deploy systemd units
+  ansible.builtin.include_tasks: deploy_unit.yml
+  loop: "{{ binary_services }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Enable and start services
+  ansible.builtin.systemd:
+    name: "{{ item.name }}"
+    enabled: true
+    state: started
+    daemon_reload: true
+  loop: "{{ binary_services }}"
+  loop_control:
+    label: "{{ item.name }}"

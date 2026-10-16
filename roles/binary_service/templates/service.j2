@@ -1,0 +1,18 @@
+#jinja2: trim_blocks: False, lstrip_blocks: False
+[Unit]
+Description={{ item.name }} Ansible Managed Service
+After=network.target
+
+[Service]
+Type=simple
+User={{ binary_service_user }}
+Group={{ binary_service_group }}
+ExecStart={{ item.exec }}{% if item.args is defined %} {{ item.args }}{% endif %}
+WorkingDirectory={{ item.wd | default(item.dirs[0] | default('/opt/services/' ~ item.name)) }}
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

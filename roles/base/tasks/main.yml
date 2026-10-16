@@ -1,0 +1,38 @@
+---
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ base_timezone }}"
+
+- name: Install baseline packages
+  ansible.builtin.apt:
+    name: "{{ base_packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Configure fail2ban jail
+  ansible.builtin.copy:
+    dest: /etc/fail2ban/jail.d/sshd.local
+    content: |
+      [sshd]
+      enabled = true
+      backend = systemd
+      journalmatch = _SYSTEMD_UNIT=ssh.service + _COMM=sshd
+      maxretry = {{ base_fail2ban_maxretry }}
+      bantime  = {{ base_fail2ban_bantime }}
+    mode: "0644"
+  notify: restart fail2ban
+
+- name: Enable and start fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban
+    enabled: true
+    state: started
+  when: base_fail2ban_enabled
+
+- name: Ensure fail2ban is stopped if disabled
+  ansible.builtin.systemd:
+    name: fail2ban
+    enabled: false
+    state: stopped
+  when: not base_fail2ban_enabled

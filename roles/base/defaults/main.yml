@@ -1,0 +1,9 @@
+base_packages:
+  - fail2ban
+
+base_timezone: Asia/Dhaka
+
+base_fail2ban_enabled: true
+
+base_fail2ban_maxretry: 5
+base_fail2ban_bantime: 1h

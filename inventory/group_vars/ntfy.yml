@@ -1,0 +1,26 @@
+config_user_name: ansible
+config_user_shell: /bin/bash
+
+archive_fetch_owner: root
+archive_fetch_group: root
+
+archive_fetch_artifacts:
+  - name: ntfy
+    url: https://github.com/binwiederhier/ntfy/releases/download/v2.30.0/ntfy_2.30.0_linux_amd64.tar.gz
+    archive: true
+    dest_dir: /opt/services/ntfy
+    extract_strip_components: 1
+    overwrite: false
+
+binary_services:
+  - name: ntfy
+    exec: /opt/services/ntfy/ntfy
+    args: "serve --listen-http :4503"
+    dirs:
+      - /var/lib/ntfy
+      - /etc/ntfy
+    config_files:
+      - src: client/client.yml
+        dest: /etc/ntfy/client.yml
+      - src: server/server.yml
+        dest: /etc/ntfy/server.yml

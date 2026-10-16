@@ -1,0 +1,9 @@
+---
+- name: Deploy Ntfy stack
+  hosts: ntfy
+  become: true
+  roles:
+    - base
+    - create_warden
+    - check_download
+    - binary_service
