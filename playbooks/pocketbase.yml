@@ -1,0 +1,9 @@
+---
+- name: Deploy Pocketbase
+  hosts: pocketbase
+  become: true
+  roles:
+    - base
+    - create_warden
+    - check_download
+    - binary_service

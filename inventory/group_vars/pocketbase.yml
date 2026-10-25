@@ -1,0 +1,21 @@
+config_user_name: pocketbase
+config_user_shell: /bin/bash
+
+archive_fetch_owner: root
+archive_fetch_group: root
+
+archive_fetch_artifacts:
+  - name: pocketbase
+    url: https://github.com/pocketbase/pocketbase/releases/download/v0.40.6/pocketbase_0.40.6_linux_amd64.zip
+    archive: true
+    archive_ext: ".zip"
+    dest_dir: /opt/services/pocketbase
+    overwrite: false
+
+binary_services:
+  - name: pocketbase
+    exec: /opt/services/pocketbase/pocketbase
+    args: "serve --http=0.0.0.0:8090"
+    wd: /opt/services/pocketbase  # CRITICAL: Forces pb_data to be created here
+    dirs:
+      - /opt/services/pocketbase
