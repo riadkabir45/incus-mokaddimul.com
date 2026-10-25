@@ -27,9 +27,16 @@ archive_fetch_artifacts:
     overwrite: false
 
   - name: whisparr
-    url: http://whisparr.servarr.com/v1/update/nightly/updatefile?os=linux&runtime=netcore&arch=x64
+    url: https://github.com/Whisparr/Whisparr/releases/download/v2.2.0-develop.123/Whisparr.2.2.0-develop.123.linux-x64.tar.gz
     archive: true
     dest_dir: /opt/services/whisparr
+    extract_strip_components: 1
+    overwrite: false
+
+  - name: lidarr
+    url: https://lidarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64
+    archive: true
+    dest_dir: /opt/services/lidarr
     extract_strip_components: 1
     overwrite: false
 
@@ -57,3 +64,9 @@ binary_services:
     args: "-nobrowser -data=/var/lib/servarr/whisparr"
     dirs:
       - /var/lib/servarr/whisparr
+
+  - name: lidarr
+    exec: /opt/services/lidarr/Lidarr
+    args: "-nobrowser -data=/var/lib/servarr/lidarr"
+    dirs:
+      - /var/lib/servarr/lidarr
